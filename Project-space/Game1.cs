@@ -22,7 +22,7 @@ namespace Project_space
 
         Texture2D aliens;
         List<Vector2> alienpositioner = new List<Vector2>();
-
+        float alienspeed = 1;
         public Game1()
 
         {
@@ -57,8 +57,8 @@ namespace Project_space
 
             aliens = Content.Load<Texture2D>("space invaders alien");
 
-            BulletBild = Content.Load<Texture2D>("bullet");
-            BulletRectangle = new Rectangle(100, 200, BulletBild.Width / 2, BulletBild.Height / 2);
+            BulletBild = Content.Load<Texture2D>("playerBullet");
+            BulletRectangle = new Rectangle(400, 400, BulletBild.Width / 2, BulletBild.Height / 2);
 
         }
 
@@ -87,7 +87,29 @@ namespace Project_space
             {
                 shipPosition.X += shipSpeed;
             }
-           
+
+            Vector2 temp;
+
+            for (int i = 0; i < alienpositioner.Count; i++)
+
+            {
+                temp = alienpositioner[i];
+
+                if (temp.X >= 0 || temp.X <= 800)
+
+                {
+
+                    temp.X -= alienspeed;
+                }
+                if (temp.X <= 0 || temp.X >= 750)
+                {
+                    alienspeed *= -1;
+                }
+
+                alienpositioner[i] = temp;
+
+            }
+
             base.Update(gameTime);
         }
 
@@ -99,6 +121,10 @@ namespace Project_space
             spriteBatch.End();
             spriteBatch.Begin();
             spriteBatch.Draw(ship, shipPosition, Color.White);
+            spriteBatch.End();
+
+            spriteBatch.Begin();
+            spriteBatch.Draw(BulletBild, shipPosition, Color.White);
             spriteBatch.End();
 
             spriteBatch.Begin();
