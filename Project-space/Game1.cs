@@ -11,23 +11,31 @@ namespace Project_space
         SpriteBatch spriteBatch;
         Texture2D ship;
         Vector2 shipPosition = new Vector2(400, 400);
-        float shipSpeed = 3;
+        int shipSpeed = 3;
         KeyboardState tangentbord = Keyboard.GetState();
-
+        KeyboardState keyboardOne = Keyboard.GetState();
+        KeyboardState keyboardTwo = Keyboard.GetState(); 
         Texture2D BulletBild;
         Rectangle BulletRectangle;
-        
+        bool shoot = false;
         Texture2D background;
         Vector2 backgroundposition = new Vector2(0, 0);
 
         Texture2D aliens;
         List<Vector2> alienpositioner = new List<Vector2>();
-        float alienspeed = 1;
+        int alienspeed = 1;
+
+        Dictionary<string, int> settings = new Dictionary<string, int>();
+
+        List<Rectangle> bricks = new List<Rectangle>();
+
         public Game1()
 
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+          
         }
 
         protected override void Initialize()     
@@ -44,6 +52,11 @@ namespace Project_space
                 }
             }
             base.Initialize();
+
+            settings["shootSpeed"] = 7;
+            settings["moveX"] = 2;
+            settings["alienShootSpeed"] = 10;
+
         }
 
 
@@ -65,52 +78,58 @@ namespace Project_space
         protected override void Update(GameTime gameTime)
 
         {
-            tangentbord = Keyboard.GetState();
+            keyboardTwo = keyboardOne;
+            keyboardOne = Keyboard.GetState();
 
-            if (tangentbord.IsKeyDown(Keys.Left) || tangentbord.IsKeyDown(Keys.A))
 
+
+
+            if (keyboardOne.IsKeyDown(Keys.Left) && (shipPosition.X > 0))
             {
                 shipPosition.X -= shipSpeed;
-
-                if (tangentbord.IsKeyDown(Keys.Left) && (shipPosition.X > 0))
+                if (!shoot)
                 {
-                    shipPosition.X -= shipSpeed;
+                    BulletRectangle.X -= shipSpeed;
                 }
+
             }
 
-            if (tangentbord.IsKeyDown(Keys.Right) || tangentbord.IsKeyDown(Keys.D))
+
+            if (keyboardOne.IsKeyDown(Keys.Right) && (shipPosition.X > 0))
             {
                 shipPosition.X += shipSpeed;
-            }
-
-            if (tangentbord.IsKeyDown(Keys.Right) && (shipPosition.X > 0))
-            {
-                shipPosition.X += shipSpeed;
-            }
-
-            Vector2 temp;
-
-            for (int i = 0; i < alienpositioner.Count; i++)
-
-            {
-                temp = alienpositioner[i];
-
-                if (temp.X >= 0 || temp.X <= 800)
-
+                if (!shoot)
                 {
-
-                    temp.X -= alienspeed;
-                }
-                if (temp.X <= 0 || temp.X >= 750)
-                {
-                    alienspeed *= -1;
+                    BulletRectangle.X += shipSpeed;
                 }
 
-                alienpositioner[i] = temp;
 
             }
+            if (keyboardOne.IsKeyDown(Keys.Space) && (keyboardTwo.IsKeyUp(Keys.Space)))
+            {
+                shoot = true;
+                
+            }
+            if (shoot)
+            {
+                BulletRectangle.Y -= 5;
+            }
 
-            base.Update(gameTime);
+            if (shoot)
+            {
+                if (BulletRectangle.Y > 0)
+                {
+                    BulletRectangle.Y -= settings["shootSpeed"];
+                }
+                else if (BulletRectangle.Y <= 0)
+                {
+                    shoot = false;
+                    BulletRectangle.Y = (int)shipPosition.X;
+                }
+            }
+
+           
+        base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -124,7 +143,7 @@ namespace Project_space
             spriteBatch.End();
 
             spriteBatch.Begin();
-            spriteBatch.Draw(BulletBild, shipPosition, Color.White);
+            spriteBatch.Draw(BulletBild, BulletRectangle, Color.White);
             spriteBatch.End();
 
             spriteBatch.Begin();
@@ -138,5 +157,8 @@ namespace Project_space
             base.Draw(gameTime);
 
         }
+
+
+
     }
 }
